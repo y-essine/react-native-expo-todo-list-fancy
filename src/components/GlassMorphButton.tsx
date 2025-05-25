@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { createBoxShadow } from "../utils/shadow";
 
 type GlassMorphButtonProps = {
   onPress: () => void;
@@ -195,10 +196,9 @@ export const GlassMorphButton = ({
           borderRadius: 16,
           overflow: "hidden",
           minHeight: currentSize.minHeight,
-          shadowColor: darkMode ? "#000" : currentVariant.borderColor,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
+          boxShadow: darkMode
+            ? createBoxShadow("rgba(0, 0, 0, 0.3)", 0, 4, 8)
+            : createBoxShadow("rgba(139, 92, 246, 0.3)", 0, 4, 8),
           elevation: 6,
         }}
       >
@@ -225,7 +225,7 @@ export const GlassMorphButton = ({
           style={{ borderRadius: 16 }}
         >
           <LinearGradient
-            colors={currentVariant.colors}
+            colors={currentVariant.colors as any}
             style={{
               borderRadius: 16,
               borderWidth: 1,

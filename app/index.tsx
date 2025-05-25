@@ -100,7 +100,7 @@ export default function App() {
           darkMode={darkMode}
           variant="default"
           enableAnimations={true}
-          intensity="high"
+          intensity="low"
           style={{ flex: 1 }}
         >
           {/* Floating Particles Background */}

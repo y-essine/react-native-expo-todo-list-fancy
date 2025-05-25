@@ -10,6 +10,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { createBoxShadow } from "../utils/shadow";
 
 type HolographicCardProps = {
   children: React.ReactNode;
@@ -254,10 +255,9 @@ export const HolographicCard = ({
             borderWidth: 1,
             borderColor: theme.borderColor,
             padding: 20,
-            shadowColor: darkMode ? "#000" : currentColors[0],
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
+            boxShadow: darkMode
+              ? createBoxShadow("rgba(0, 0, 0, 0.3)", 0, 4, 12)
+              : createBoxShadow("rgba(139, 92, 246, 0.3)", 0, 4, 12),
             elevation: 8,
           }}
         >

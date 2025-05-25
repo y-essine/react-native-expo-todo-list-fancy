@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { createBoxShadow } from "../utils/shadow";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -147,10 +148,7 @@ export const GlassToast = ({
             maxWidth: screenWidth - 40,
             borderRadius: 16,
             overflow: "hidden",
-            shadowColor: currentType.iconColor,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
+            boxShadow: createBoxShadow("rgba(139, 92, 246, 0.3)", 0, 4, 12),
             elevation: 10,
           },
           animatedStyle,

@@ -161,10 +161,7 @@ export const GlassProgressBar = ({
           height,
           borderRadius: height / 2,
           overflow: "hidden",
-          shadowColor: currentColor.glow,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
+          boxShadow: "0px 2px 4px rgba(139, 92, 246, 0.4)",
           elevation: 3,
         }}
       >

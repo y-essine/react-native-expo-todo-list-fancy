@@ -10,6 +10,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { createBoxShadow } from "../utils/shadow";
 
 type FancyCardProps = {
   children: React.ReactNode;
@@ -426,8 +427,8 @@ export const FancyCard = ({
               : "rgba(148, 163, 184, 0.2)",
             // Add subtle inner shadow effect using boxShadow
             boxShadow: darkMode
-              ? "0 2px 8px rgba(0, 0, 0, 0.1)"
-              : "0 2px 8px rgba(100, 116, 139, 0.1)",
+              ? createBoxShadow("rgba(0, 0, 0, 0.1)", 0, 2, 8)
+              : createBoxShadow("rgba(100, 116, 139, 0.1)", 0, 2, 8),
             elevation: 4,
           }}
         >

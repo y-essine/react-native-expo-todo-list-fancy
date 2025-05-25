@@ -83,14 +83,13 @@ export const GlassInput = ({
       rippleOpacity.value = withTiming(0, { duration: 400 });
     }
   };
-
   const containerStyle = useAnimatedStyle(() => {
     const borderWidth = interpolate(focusAnimation.value, [0, 1], [1, 2]);
     const glowOpacity = interpolate(focusAnimation.value, [0, 1], [0, 1]);
 
     return {
       borderWidth,
-      shadowOpacity: glowOpacity * 0.3,
+      boxShadow: `0px 0px 10px rgba(139, 92, 246, ${glowOpacity * 0.3})`,
       elevation: interpolate(focusAnimation.value, [0, 1], [2, 6]),
     };
   });
@@ -117,10 +116,7 @@ export const GlassInput = ({
             bottom: -4,
             borderRadius: 20,
             backgroundColor: theme.glowColor,
-            shadowColor: theme.focusBorderColor,
-            shadowOffset: { width: 0, height: 0 },
-            shadowRadius: 10,
-            shadowOpacity: 0.5,
+            boxShadow: `0px 0px 10px rgba(139, 92, 246, 0.5)`,
           },
           glowStyle,
         ]}
@@ -150,9 +146,9 @@ export const GlassInput = ({
             borderRadius: 16,
             borderColor: isFocused ? theme.focusBorderColor : theme.borderColor,
             overflow: "hidden",
-            shadowColor: darkMode ? "#000" : theme.focusBorderColor,
-            shadowOffset: { width: 0, height: 2 },
-            shadowRadius: 8,
+            boxShadow: darkMode
+              ? "0px 2px 8px rgba(0, 0, 0, 0.3)"
+              : "0px 2px 8px rgba(139, 92, 246, 0.3)",
             elevation: 2,
           },
           containerStyle,
