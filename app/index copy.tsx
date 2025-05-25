@@ -15,7 +15,7 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Local imports
-import { AnimatedCard, BlurCard, FancyView, TodoItem } from "../src/components";
+import { AnimatedCard, BlurCard, FancyCard, TodoItem } from "../src/components";
 import { useTodos } from "../src/hooks/useTodos";
 import { colors, filters } from "../src/theme";
 import { FilterType } from "../src/types";
@@ -69,13 +69,7 @@ export default function App() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <FancyView
-          darkMode={darkMode}
-          variant="default"
-          enableAnimations={true}
-          intensity="high"
-          style={{ flex: 1 }}
-        >
+        <LinearGradient colors={theme.background} style={{ flex: 1 }}>
           <StatusBar
             style={darkMode ? "light" : "dark"}
             backgroundColor="transparent"
@@ -235,88 +229,57 @@ export default function App() {
                     {
                       label: "Total",
                       value: stats.total,
-                      color: darkMode
-                        ? "rgba(255, 255, 255, 0.1)"
-                        : "rgba(0, 0, 0, 0.05)",
-                      borderColor: darkMode
-                        ? "rgba(255, 255, 255, 0.2)"
-                        : "rgba(0, 0, 0, 0.1)",
+                      variant: "default" as const,
                     },
                     {
                       label: "Completed",
                       value: stats.completed,
-                      color: darkMode
-                        ? "rgba(34, 197, 94, 0.15)"
-                        : "rgba(34, 197, 94, 0.1)",
-                      borderColor: darkMode
-                        ? "rgba(34, 197, 94, 0.3)"
-                        : "rgba(34, 197, 94, 0.2)",
+                      variant: "cool" as const,
                     },
                     {
                       label: "Pending",
                       value: stats.pending,
-                      color: darkMode
-                        ? "rgba(249, 115, 22, 0.15)"
-                        : "rgba(249, 115, 22, 0.1)",
-                      borderColor: darkMode
-                        ? "rgba(249, 115, 22, 0.3)"
-                        : "rgba(249, 115, 22, 0.2)",
+                      variant: "warm" as const,
                     },
                     {
                       label: "High Priority",
                       value: stats.highPriority,
-                      color: darkMode
-                        ? "rgba(239, 68, 68, 0.15)"
-                        : "rgba(239, 68, 68, 0.1)",
-                      borderColor: darkMode
-                        ? "rgba(239, 68, 68, 0.3)"
-                        : "rgba(239, 68, 68, 0.2)",
+                      variant: "electric" as const,
                     },
                   ].map((stat, i) => (
-                    <View
+                    <FancyCard
                       key={i}
+                      darkMode={darkMode}
+                      variant={stat.variant}
                       style={{
                         flex: 1,
                         minWidth: "45%",
-                        height: 100,
-                        backgroundColor: stat.color,
-                        borderRadius: 16,
-                        borderWidth: 1,
-                        borderColor: stat.borderColor,
-                        padding: 16,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        shadowColor: darkMode ? "#000" : "#000",
-                        shadowOffset: {
-                          width: 0,
-                          height: 2,
-                        },
-                        shadowOpacity: darkMode ? 0.3 : 0.1,
-                        shadowRadius: 4,
-                        elevation: 3,
+                        innerHeight: 100,
                       }}
                     >
-                      <Text
-                        style={{
-                          fontSize: 24,
-                          fontWeight: "bold",
-                          color: theme.text,
-                          marginBottom: 4,
-                        }}
-                      >
-                        {stat.value}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: theme.textSecondary,
-                          textAlign: "center",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {stat.label}
-                      </Text>
-                    </View>
+                      <View style={{ alignItems: "center" }}>
+                        <Text
+                          style={{
+                            fontSize: 24,
+                            fontWeight: "bold",
+                            color: theme.text,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {stat.value}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: theme.textSecondary,
+                            textAlign: "center",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {stat.label}
+                        </Text>
+                      </View>
+                    </FancyCard>
                   ))}
                 </View>
               </AnimatedCard>
@@ -420,7 +383,7 @@ export default function App() {
               </AnimatedCard>
             )}
           </ScrollView>
-        </FancyView>
+        </LinearGradient>
       </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );

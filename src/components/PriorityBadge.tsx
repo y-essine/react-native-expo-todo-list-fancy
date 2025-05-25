@@ -1,15 +1,18 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
-import { Text } from 'react-native';
-import { priorities } from '../theme';
-import { Priority } from '../types';
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { Text } from "react-native";
+import { priorities } from "../theme";
+import { Priority } from "../types";
 
 type PriorityBadgeProps = {
   priority: Priority;
   compact?: boolean;
 };
 
-export const PriorityBadge = ({ priority, compact = false }: PriorityBadgeProps) => {
+export const PriorityBadge = ({
+  priority,
+  compact = false,
+}: PriorityBadgeProps) => {
   return (
     <LinearGradient
       colors={priorities[priority]}
@@ -20,11 +23,13 @@ export const PriorityBadge = ({ priority, compact = false }: PriorityBadgeProps)
         marginLeft: compact ? 0 : 8,
       }}
     >
-      <Text style={{ 
-        color: 'white', 
-        fontSize: compact ? 9 : 10, 
-        fontWeight: '600' 
-      }}>
+      <Text
+        style={{
+          color: "white",
+          fontSize: compact ? 9 : 10,
+          fontWeight: "600",
+        }}
+      >
         {priority.toUpperCase()}
       </Text>
     </LinearGradient>

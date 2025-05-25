@@ -1,24 +1,31 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import React, { useRef, useState } from 'react';
-import { Dimensions, Keyboard, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import React, { useRef, useState } from "react";
+import {
+  Dimensions,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming
-} from 'react-native-reanimated';
+  withTiming,
+} from "react-native-reanimated";
 
-import { colors } from '../theme';
-import { Todo } from '../types';
-import { getCategoryIcon } from '../utils/icons';
-import { AnimatedCard } from './AnimatedCard';
-import { BlurCard } from './BlurCard';
-import { PriorityBadge } from './PriorityBadge';
+import { colors } from "../theme";
+import { Todo } from "../types";
+import { getCategoryIcon } from "../utils/icons";
+import { AnimatedCard } from "./AnimatedCard";
+import { BlurCard } from "./BlurCard";
+import { PriorityBadge } from "./PriorityBadge";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 type TodoItemProps = {
   todo: Todo;
@@ -31,7 +38,16 @@ type TodoItemProps = {
   darkMode: boolean;
 };
 
-export const TodoItem = ({ todo, onToggle, onDelete, onEdit, onUpdatePriority, onEditStart, index, darkMode }: TodoItemProps) => {
+export const TodoItem = ({
+  todo,
+  onToggle,
+  onDelete,
+  onEdit,
+  onUpdatePriority,
+  onEditStart,
+  index,
+  darkMode,
+}: TodoItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const editInputRef = useRef<TextInput>(null);
@@ -40,10 +56,7 @@ export const TodoItem = ({ todo, onToggle, onDelete, onEdit, onUpdatePriority, o
   const translateX = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { translateX: translateX.value },
-    ],
+    transform: [{ scale: scale.value }, { translateX: translateX.value }],
   }));
 
   const handlePressIn = () => {
@@ -67,32 +80,37 @@ export const TodoItem = ({ todo, onToggle, onDelete, onEdit, onUpdatePriority, o
     .onEnd((event) => {
       if (!isEditing) {
         const { translationX, velocityX } = event;
-        
+
         // More responsive swipe detection
         if (Math.abs(translationX) > 80 || Math.abs(velocityX) > 500) {
           if (translationX < 0) {
             // Swipe left - delete with animation
-            translateX.value = withTiming(-width, { duration: 300 }, (finished) => {
-              if (finished) {
-                runOnJS(onDelete)();
+            translateX.value = withTiming(
+              -width,
+              { duration: 300 },
+              (finished) => {
+                if (finished) {
+                  runOnJS(onDelete)();
+                }
               }
-            });
+            );
             return;
           }
         }
         translateX.value = withSpring(0);
       }
-    });  const handleTextPress = () => {
+    });
+  const handleTextPress = () => {
     if (!todo.completed) {
       setIsEditing(true);
       setEditText(todo.text);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      
+
       // Notify parent to scroll to this item
       if (onEditStart) {
         onEditStart(itemRef.current);
       }
-      
+
       // Focus the input after a short delay to ensure it's rendered
       setTimeout(() => {
         editInputRef.current?.focus();
@@ -120,141 +138,182 @@ export const TodoItem = ({ todo, onToggle, onDelete, onEdit, onUpdatePriority, o
       <View ref={itemRef}>
         <GestureDetector gesture={panGesture}>
           <Animated.View style={animatedStyle}>
-          <TouchableOpacity
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            activeOpacity={0.9}
-            disabled={isEditing}
-          >
-            <BlurCard intensity={60} darkMode={darkMode}>
-              <View style={{ minHeight: 80 }}>
-                {/* Main content row */}
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <TouchableOpacity
-                    onPress={onToggle}
+            <TouchableOpacity
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              activeOpacity={0.9}
+              disabled={isEditing}
+            >
+              <BlurCard intensity={60} darkMode={darkMode}>
+                <View style={{ minHeight: 80 }}>
+                  {/* Main content row */}
+                  <View
                     style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 14,
-                      borderWidth: 2,
-                      borderColor: todo.completed ? '#10b981' : theme.textMuted,
-                      backgroundColor: todo.completed ? '#10b981' : 'transparent',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: 16,
-                      marginTop: 2,
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      marginBottom: 12,
                     }}
                   >
-                    {todo.completed && (
-                      <Ionicons name="checkmark" size={16} color="white" />
-                    )}
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={onToggle}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 14,
+                        borderWidth: 2,
+                        borderColor: todo.completed
+                          ? "#10b981"
+                          : theme.textMuted,
+                        backgroundColor: todo.completed
+                          ? "#10b981"
+                          : "transparent",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: 16,
+                        marginTop: 2,
+                      }}
+                    >
+                      {todo.completed && (
+                        <Ionicons name="checkmark" size={16} color="white" />
+                      )}
+                    </TouchableOpacity>
 
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    {isEditing ? (                      <View>
-                        <TextInput
-                          ref={editInputRef}
-                          value={editText}
-                          onChangeText={setEditText}
-                          style={{
-                            fontSize: 18,
-                            fontWeight: '500',
-                            color: theme.text,
-                            backgroundColor: theme.inputBackground,
-                            borderRadius: 8,
-                            padding: 12,
-                            marginBottom: 8,
-                          }}
-                          multiline
-                          autoFocus
-                          returnKeyType="done"
-                          blurOnSubmit={true}
-                          onSubmitEditing={handleSaveEdit}
-                          onBlur={handleCancelEdit}
-                        />
-                        <View style={{ flexDirection: 'row', gap: 8 }}>
-                          <TouchableOpacity
-                            onPress={handleSaveEdit}
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      {isEditing ? (
+                        <View>
+                          <TextInput
+                            ref={editInputRef}
+                            value={editText}
+                            onChangeText={setEditText}
                             style={{
-                              backgroundColor: '#10b981',
-                              paddingHorizontal: 12,
-                              paddingVertical: 6,
+                              fontSize: 18,
+                              fontWeight: "500",
+                              color: theme.text,
+                              backgroundColor: theme.inputBackground,
                               borderRadius: 8,
+                              padding: 12,
+                              marginBottom: 8,
                             }}
-                          >
-                            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
-                              Save
-                            </Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={handleCancelEdit}
-                            style={{
-                              backgroundColor: theme.textMuted,
-                              paddingHorizontal: 12,
-                              paddingVertical: 6,
-                              borderRadius: 8,
-                            }}
-                          >
-                            <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
-                              Cancel
-                            </Text>
-                          </TouchableOpacity>
+                            multiline
+                            autoFocus
+                            returnKeyType="done"
+                            blurOnSubmit={true}
+                            onSubmitEditing={handleSaveEdit}
+                            onBlur={handleCancelEdit}
+                          />
+                          <View style={{ flexDirection: "row", gap: 8 }}>
+                            <TouchableOpacity
+                              onPress={handleSaveEdit}
+                              style={{
+                                backgroundColor: "#10b981",
+                                paddingHorizontal: 12,
+                                paddingVertical: 6,
+                                borderRadius: 8,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 12,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Save
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={handleCancelEdit}
+                              style={{
+                                backgroundColor: theme.textMuted,
+                                paddingHorizontal: 12,
+                                paddingVertical: 6,
+                                borderRadius: 8,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 12,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Cancel
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                      </View>
-                    ) : (
-                      <TouchableOpacity onPress={handleTextPress} activeOpacity={0.7}>
-                        <Text
-                          style={{
-                            fontSize: 18,
-                            fontWeight: '500',
-                            color: todo.completed ? theme.textMuted : theme.text,
-                            textDecorationLine: todo.completed ? 'line-through' : 'none',
-                            lineHeight: 24,
-                          }}
+                      ) : (
+                        <TouchableOpacity
+                          onPress={handleTextPress}
+                          activeOpacity={0.7}
                         >
-                          {todo.text}
-                        </Text>
-                        {!todo.completed && (
-                          <Text style={{ 
-                            fontSize: 12, 
-                            color: theme.textMuted, 
-                            marginTop: 2,
-                            fontStyle: 'italic'
-                          }}>
-                            Tap to edit
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              fontWeight: "500",
+                              color: todo.completed
+                                ? theme.textMuted
+                                : theme.text,
+                              textDecorationLine: todo.completed
+                                ? "line-through"
+                                : "none",
+                              lineHeight: 24,
+                            }}
+                          >
+                            {todo.text}
                           </Text>
-                        )}
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-
-                {/* Bottom row with category, priority, and actions */}
-                <View style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Ionicons
-                      name={getCategoryIcon(todo.category)}
-                      size={14}
-                      color={theme.textSecondary}
-                      style={{ marginRight: 6 }}
-                    />
-                    <Text style={{ 
-                      fontSize: 12, 
-                      color: theme.textSecondary,
-                      textTransform: 'capitalize'
-                    }}>
-                      {todo.category}
-                    </Text>
-                    <View style={{ marginLeft: 8 }}>
-                      <PriorityBadge priority={todo.priority} compact={true} />
+                          {!todo.completed && (
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: theme.textMuted,
+                                marginTop: 2,
+                                fontStyle: "italic",
+                              }}
+                            >
+                              Tap to edit
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
 
-                  {/* <View style={{ flexDirection: 'row', gap: 6 }}>
+                  {/* Bottom row with category, priority, and actions */}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <Ionicons
+                        name={getCategoryIcon(todo.category)}
+                        size={14}
+                        color={theme.textSecondary}
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: theme.textSecondary,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {todo.category}
+                      </Text>
+                      <View style={{ marginLeft: 8 }}>
+                        <PriorityBadge
+                          priority={todo.priority}
+                          compact={true}
+                        />
+                      </View>
+                    </View>
+
+                    {/* <View style={{ flexDirection: 'row', gap: 6 }}>
                     <TouchableOpacity
                       onPress={handleTextPress}
                       style={{
@@ -277,11 +336,12 @@ export const TodoItem = ({ todo, onToggle, onDelete, onEdit, onUpdatePriority, o
                       <Ionicons name="trash-outline" size={14} color={darkMode ? '#f87171' : '#ef4444'} />
                     </TouchableOpacity>
                   </View> */}
+                  </View>
                 </View>
-              </View>
-            </BlurCard>
-          </TouchableOpacity>        </Animated.View>
-      </GestureDetector>
+              </BlurCard>
+            </TouchableOpacity>
+          </Animated.View>
+        </GestureDetector>
       </View>
     </AnimatedCard>
   );

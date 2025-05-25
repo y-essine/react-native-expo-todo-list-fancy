@@ -1,5 +1,5 @@
 // Types for the Todo App
-export type Priority = 'high' | 'medium' | 'low';
+export type Priority = "high" | "medium" | "low";
 
 export type Todo = {
   id: number;
@@ -9,7 +9,14 @@ export type Todo = {
   category: string;
 };
 
-export type FilterType = 'all' | 'active' | 'completed' | 'work' | 'dev' | 'health' | 'personal';
+export type FilterType =
+  | "all"
+  | "active"
+  | "completed"
+  | "work"
+  | "dev"
+  | "health"
+  | "personal";
 
 export type Stats = {
   total: number;

@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming
-} from 'react-native-reanimated';
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 type AnimatedCardProps = {
   children: React.ReactNode;
