@@ -1,75 +1,50 @@
-# Fancy Tasks - Todo List App ✨
+# Welcome to your Expo app 👋
 
-A beautiful and modern todo list app built with React Native and Expo SDK 53. Features a sleek design with dark/light mode support, smooth animations, and intuitive gestures.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Features
+## Get started
 
-- ✅ **Add, toggle, and delete tasks** with smooth animations
-- 🌓 **Dark/Light mode support** with automatic system detection
-- 📱 **Beautiful UI** with gradient backgrounds and blur effects
-- 🎯 **Task filtering** (All, Active, Completed)
-- 📊 **Task statistics** with visual progress indicators
-- 👆 **Swipe gestures** to delete tasks
-- 🎪 **Haptic feedback** for better user experience
-- 🚀 **Performance optimized** with React hooks
-
-## Technology Stack
-
-- **React Native** 0.79.2
-- **Expo SDK** 53
-- **TypeScript** for type safety
-- **React Native Reanimated** for smooth animations
-- **React Native Gesture Handler** for touch interactions
-- **Expo Linear Gradient** for beautiful backgrounds
-- **Expo Blur** for modern UI effects
-
-## Get Started
-
-1. **Install dependencies**
+1. Install dependencies
 
    ```bash
    npm install
    ```
 
-2. **Start the development server**
+2. Start the app
 
    ```bash
    npx expo start
    ```
 
-3. **Run on your device**
-   - Scan the QR code with Expo Go app (iOS/Android)
-   - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Press `w` for web browser
+In the output, you'll find options to open the app in a
 
-## Project Structure
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Get a fresh project
+
+When you're ready, run:
+
+```bash
+npm run reset-project
 ```
-├── app/
-│   ├── index.tsx          # Main todo app screen
-│   └── _layout.tsx        # Root layout configuration
-├── assets/
-│   └── images/           # App icons and images
-├── app.json              # Expo configuration
-└── package.json          # Dependencies and scripts
-```
 
-## Development
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-The app is built with Expo Router using file-based routing. The main todo functionality is contained in `app/index.tsx` with a clean, single-screen design.
+## Learn more
 
-### Key Components
+To learn more about developing your project with Expo, look at the following resources:
 
-- **TodoApp**: Main container with state management
-- **TodoItem**: Individual task component with animations
-- **BlurCard**: Reusable card component with blur effects
-- **FilterButton**: Task filter controls
-- **AddTaskButton**: Floating action button for adding tasks
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Learn More
+## Join the community
 
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Documentation](https://reactnative.dev/)
-- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/)
-- [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/)
+Join our community of developers creating universal apps.
+
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.

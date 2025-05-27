@@ -1,5 +1,6 @@
 {
-  "name": "fancy-tasks",
+  "name": "expo-tailwind-react-native-template",
+  "description": "React Native template with Expo, GlueStack UI (Tailwind-style props), and Lottie animations",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -11,9 +12,16 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@gluestack-style/react": "^1.0.56",
+    "@gluestack-ui/config": "^1.1.18",
+    "@gluestack-ui/themed": "^1.1.26",
+    "@gorhom/bottom-sheet": "^5.1.4",
+    "@lottiefiles/dotlottie-react": "^0.13.5",
+    "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
+    "dayjs": "^1.11.13",
     "expo": "~53.0.9",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",
@@ -27,23 +35,27 @@
     "expo-symbols": "~0.4.4",
     "expo-system-ui": "~5.0.7",
     "expo-web-browser": "~14.1.6",
+    "lottie-react-native": "7.2.2",
+    "lucide-react-native": "^0.511.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.2",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
+    "react-native-reanimated-carousel": "^4.0.2",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
+    "react-native-svg": "^15.12.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "expo-linear-gradient": "~14.1.4"
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
-    "typescript": "~5.8.3",
     "eslint": "^9.25.0",
-    "eslint-config-expo": "~9.2.0"
+    "eslint-config-expo": "~9.2.0",
+    "typescript": "~5.8.3"
   },
   "private": true
 }
