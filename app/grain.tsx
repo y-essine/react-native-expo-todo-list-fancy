@@ -1,86 +1,75 @@
+import OnboardingPath from "@/components/Skia/OnboardingPath";
 import { Heading, Pressable, Text, View } from "@gluestack-ui/themed";
-import {
-  Canvas,
-  Fill,
-  Path,
-  Text as SkiaText,
-  useFont,
-  useImage,
-} from "@shopify/react-native-skia";
+import { Canvas, Fill } from "@shopify/react-native-skia";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet } from "react-native";
-import {
-  interpolate,
-  useDerivedValue,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from "react-native-reanimated";
-import { createOnboardingPath } from "../utils/createOnboardingPath";
+import React from "react";
+import { SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
 
 const GrainPage = () => {
-  const { width, height } = Dimensions.get("window");
-  const grain = useImage(require("../assets/images/paper2.jpg"));
-  const font = useFont(require("../assets/fonts/kefir/Kefir-Bold.otf"), 80);
-
-  // Animation shared values
-  const animationProgress = useSharedValue(0);
-  const [currentPath, setCurrentPath] = useState(() =>
-    createOnboardingPath(width, height)
-  );
-
-  useEffect(() => {
-    // Start the animation
-    animationProgress.value = withRepeat(
-      withTiming(1, { duration: 3000 }),
-      -1,
-      false
-    );
-  }, []);
-
-  // Generate new random path when animation completes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPath(createOnboardingPath(width, height));
-    }, 3000); // Generate new path every 3 seconds (matches animation duration)
-
-    return () => clearInterval(interval);
-  }, [width, height]);
-  // Animated start and end values for path trimming
-  const animatedStart = useDerivedValue(() => {
-    return 0; // Always start from beginning
-  });
-
-  const animatedEnd = useDerivedValue(() => {
-    return interpolate(animationProgress.value, [0, 1], [0, 1]);
-  });
-
-  if (!grain || !font) return null;
-
   return (
     <>
       <Canvas style={styles.canvas}>
-        {/* === 1. Background Fill === */}
         <Fill color="#3C3549" />
-        <Path
-          path={currentPath}
-          style="stroke"
-          strokeWidth={4}
+
+        <OnboardingPath
           color="#f8d057"
-          start={animatedStart}
-          end={animatedEnd}
+          pathType="onboard1"
+          scaleX={1.2}
+          x={-50}
+          y={0}
+          delay={0} // Starts immediately
         />
-        <SkiaText x={40} y={156} text="Hello" font={font} color="#f8d057" />
-        <SkiaText x={40} y={226} text="Skia!" font={font} color="#f8d057" />
+        <OnboardingPath
+          color="#f8d057"
+          pathType="onboard2"
+          scaleX={0.6}
+          scaleY={0.5}
+          x={130}
+          y={-20}
+          delay={1500} // Starts 1.5 seconds later
+        />
       </Canvas>
-      <View px="$6" py="$4" h={250} bg="$isabelline">
-        <Pressable onPress={() => router.push("/main")}>
-          <Heading size="3xl" bold>
-            Path strokes
-          </Heading>
-        </Pressable>
-        <Text>I'm just tryna make path strokes work here!</Text>
+      <View justify="space-between" flex={1}>
+        <View flex={1}>
+          <SafeAreaView>
+            <View p="$8">
+              <Heading size="5xl" bold color="$isabelline" lineHeight="$5xl">
+                Hello, Skia!
+              </Heading>
+              <Text color="$isabelline" mt="$2">
+                This is a demo of Skia paths in React Native using Expo Router.
+              </Text>
+            </View>
+          </SafeAreaView>
+        </View>
+        <View
+          px="$6"
+          py="$4"
+          h={250}
+          bg="$isabelline"
+          justify="space-between"
+          mt="-$5"
+          borderTopStartRadius={20}
+          borderTopEndRadius={20}
+        >
+          <View>
+            <Pressable onPress={() => router.push("/main")}>
+              <Heading size="3xl" bold>
+                Pasta man!
+              </Heading>
+            </Pressable>
+            <Text>I'm just tryna make path strokes work here!</Text>
+          </View>
+          <SafeAreaView>
+            <TouchableOpacity onPress={() => router.push("/main")}>
+              <View w="100%" bg="$mustard" p="$6" rounded={20}>
+                <Text color="$arsenic" bold textAlign="center" size="2xl">
+                  Whatever
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </SafeAreaView>
+        </View>
       </View>
     </>
   );
@@ -88,6 +77,11 @@ const GrainPage = () => {
 
 const styles = StyleSheet.create({
   canvas: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     flex: 1,
   },
 });

@@ -1,0 +1,9 @@
+import { svgToSkiaPath } from "@/utils/svgToSkiaPath";
+import { SkPath } from "@shopify/react-native-skia";
+
+const ONBOARD_1_1_PATH =
+  "M88.0001 1177C30.0001 1148 256.5 1349.5 311.961 961C331.872 821.522 466.461 745.5 561.461 724C637.659 714.275 706.925 766.555 718.461 842.5C734.483 947.978 523.261 1047.4 446.461 817C369.661 586.6 948.461 302 948.461 302C1007.47 276.5 1143.6 215.2 1216 174C1306.5 122.5 1384.5 -85.0001 883 44.4999C481.8 148.1 128.167 87.6666 1.5 44.4999";
+
+export const createOnboard1Path = (width: number, height: number): SkPath => {
+  return svgToSkiaPath(ONBOARD_1_1_PATH, width, height);
+};
