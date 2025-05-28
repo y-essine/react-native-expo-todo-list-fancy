@@ -2,7 +2,6 @@ import { Heading, View } from "@gluestack-ui/themed";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
 import { TouchableOpacity } from "react-native";
-import { SquircleView } from "react-native-figma-squircle";
 
 const AuthorizedPage = () => {
   return (
@@ -29,25 +28,18 @@ const AuthorizedPage = () => {
       </View>
       <View>
         <TouchableOpacity onPress={() => router.push("/main")}>
-          <SquircleView
-            style={{
-              width: 300,
-              height: 85,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            squircleParams={{
-              bottomLeftCornerRadius: 48,
-              cornerSmoothing: 0.5,
-              topRightCornerRadius: 48,
-              cornerRadius: 45,
-              fillColor: "#67608A",
-            }}
+          <View
+            bg="$ultraviolet"
+            justify="center"
+            items="center"
+            py="$5"
+            px="$8"
+            rounded={50}
           >
-            <Heading size="3xl" bold color="$isabelline">
+            <Heading size="2xl" bold color="$isabelline">
               Get started
             </Heading>
-          </SquircleView>
+          </View>
         </TouchableOpacity>
       </View>
     </View>

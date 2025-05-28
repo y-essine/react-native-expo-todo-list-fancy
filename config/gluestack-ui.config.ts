@@ -551,10 +551,11 @@ export const gluestackUIConfig = createConfig({
     },
     fonts: {
       heading: "Kefir_DemiBold",
-      body: "Kefir_Regular",
+      body: "Signika",
       bold: "Kefir_Bold",
       semibold: "Kefir_DemiBold",
       medium: "Kefir_Medium",
+      signika: "Signika",
       mono: "sans-serif",
     },
     fontSizes: {

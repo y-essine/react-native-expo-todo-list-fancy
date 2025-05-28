@@ -8,11 +8,12 @@ import { Slot } from "expo-router";
 export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    Kefir: require("../assets/fonts/kefir/Kefir-Regular.otf"),
+    Kefir_Regular: require("../assets/fonts/kefir/Kefir-Regular.otf"),
     Kefir_Bold: require("../assets/fonts/kefir/Kefir-Bold.otf"),
     Kefir_DemiBold: require("../assets/fonts/kefir/Kefir-DemiBold.otf"),
     Kefir_Medium: require("../assets/fonts/kefir/Kefir-Medium.otf"),
     Kefir_Light: require("../assets/fonts/kefir/Kefir-Light.otf"),
+    Signika: require("../assets/fonts/SignikaNegative-Medium.ttf"),
   });
 
   if (!loaded) {
