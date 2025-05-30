@@ -35,6 +35,10 @@ export const gluestackUIConfig = createConfig({
   } as const,
   tokens: {
     colors: {
+      bone: "#E7DAC7",
+      ship: "#3F3E45",
+      majesty: "#977CC3",
+      // new above
       outerspace: "#474D4F",
       isabelline: "#F8F4F1",
       ultraviolet: "#67608A",
@@ -556,6 +560,8 @@ export const gluestackUIConfig = createConfig({
       semibold: "Kefir_DemiBold",
       medium: "Kefir_Medium",
       signika: "Signika",
+      bogart: "Bogart_Medium",
+      bogartSbItalic: "Bogart_Semibold_Italic",
       mono: "sans-serif",
     },
     fontSizes: {

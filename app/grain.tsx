@@ -1,16 +1,26 @@
 import OnboardingPath from "@/components/Skia/OnboardingPath";
 import { Heading, Pressable, Text, View } from "@gluestack-ui/themed";
-import { Canvas, Fill } from "@shopify/react-native-skia";
+import { Canvas, Fill, useFont } from "@shopify/react-native-skia";
 import { router } from "expo-router";
 import React from "react";
-import { SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Dimensions,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const GrainPage = () => {
+  // Load the font for the Skia text
+  const font = useFont(require("../assets/fonts/kefir/Kefir-Bold.otf"), 48);
+  const centerX = (50 / 100) * screenWidth;
+  const centerY = (50 / 100) * screenHeight;
+
   return (
     <>
       <Canvas style={styles.canvas}>
         <Fill color="#3C3549" />
-
         <OnboardingPath
           color="#f8d057"
           pathType="onboard1"
@@ -21,14 +31,15 @@ const GrainPage = () => {
         />
         <OnboardingPath
           color="#f8d057"
-          pathType="onboard2"
-          scaleX={0.6}
+          pathType="whateverLine"
+          scaleX={0.5}
           scaleY={0.5}
-          x={130}
-          y={-20}
-          delay={1500} // Starts 1.5 seconds later
+          x={100}
+          y={0}
+          delay={0} // Starts 3 seconds later
         />
       </Canvas>
+
       <View justify="space-between" flex={1}>
         <View flex={1}>
           <SafeAreaView>

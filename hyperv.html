@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Hyper-V Network Troubleshooting Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.lottielab.com/s/lottie-player@1.x/player-web.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Application Structure Plan: 
+        - Header: Title and brief intro.
+        - Navigation: Top navigation bar to switch between main content sections (Start Here, Understanding, Diagnosis, Solutions, Best Practices, Final Thoughts).
+        - Main Content Area: Displays content for the active section.
+        - "Solutions Guide" Section: Interactive sub-navigation (buttons) for solution categories (A, B, C, D). Content for each solution presented in clear, step-by-step format, often using expandable accordions for detailed procedures. Command blocks will have copy functionality.
+        - User Flow: Users can navigate sequentially or jump to specific sections. The "Solutions Guide" is designed for targeted troubleshooting.
+        - Why this structure: It provides a logical flow from understanding the problem to diagnosing it, finding solutions, and learning prevention. The interactive elements aim to make dense technical information more digestible and actionable for users who may be stressed by network issues.
+    -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Hyper-V Virtual Switch Types (Table from Sec II) -> Goal: Inform, Compare -> Viz/Presentation Method: HTML Table (Tailwind) -> Interaction: None -> Justification: Clear comparison -> Library/Method: HTML, Tailwind.
+        - Report Info: Command-Line Checks (Sec III) & PowerShell Commands (Sec IV.A) -> Goal: Actionable commands -> Viz/Presentation Method: Styled `<code>` blocks -> Interaction: "Copy to Clipboard" button -> Justification: Ease of use -> Library/Method: HTML, Tailwind, JS.
+        - Report Info: Step-by-Step Solutions (Sec IV) -> Goal: Guide users -> Viz/Presentation Method: Expandable accordions for categories/sub-solutions, numbered lists, styled warnings -> Interaction: Click to expand/collapse -> Justification: Manageable chunks of info -> Library/Method: HTML, Tailwind, JS.
+        - Report Info: General text -> Goal: Inform, Contextualize -> Viz/Presentation Method: Formatted text, headings -> Interaction: None -> Justification: Standard presentation -> Library/Method: HTML, Tailwind.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfbf6; /* Warm Neutral Background */
+        }
+        .nav-link {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            color: #374151; /* Gray-700 */
+        }
+        .nav-link:hover {
+            background-color: #e0e7ff; /* Indigo-100 */
+            color: #3730a3; /* Indigo-700 */
+        }
+        .nav-link.active {
+            background-color: #3b82f6; /* Blue-500 */
+            color: white;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .solution-category-btn {
+            background-color: #eff6ff; /* Blue-50 */
+            color: #1d4ed8; /* Blue-700 */
+            border: 1px solid #bfdbfe; /* Blue-200 */
+        }
+        .solution-category-btn.active {
+            background-color: #3b82f6; /* Blue-500 */
+            color: white;
+        }
+        .solution-category-btn:hover {
+            background-color: #dbeafe; /* Blue-200 */
+        }
+        .accordion-header {
+            cursor: pointer;
+            background-color: #f9fafb; /* Gray-50 */
+            border: 1px solid #e5e7eb; /* Gray-200 */
+        }
+        .accordion-header:hover {
+            background-color: #f3f4f6; /* Gray-100 */
+        }
+        .accordion-content {
+            display: none;
+            border: 1px solid #e5e7eb; /* Gray-200 */
+            border-top: none;
+        }
+        .code-block {
+            background-color: #1f2937; /* Gray-800 */
+            color: #d1d5db; /* Gray-300 */
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563; /* Gray-600 */
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #6b7280; /* Gray-500 */
+        }
+        .warning-box {
+            background-color: #fffbeb; /* Amber-50 */
+            border-left-width: 4px;
+            border-color: #f59e0b; /* Amber-500 */
+            padding: 1rem;
+            color: #b45309; /* Amber-700 */
+        }
+        .table-header {
+            background-color: #f3f4f6; /* Gray-100 */
+            font-weight: 600;
+        }
+        .table-cell {
+            border: 1px solid #e5e7eb; /* Gray-200 */
+            padding: 0.75rem;
+        }
+        h2 { margin-bottom: 1.5rem; font-size: 1.875rem; font-weight: 700; color: #111827; /* Gray-900 */ }
+        h3 { margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        h4 { margin-top: 1rem; margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 600; color: #374151; /* Gray-700 */ }
+        p { margin-bottom: 1rem; line-height: 1.625; color: #4b5563; /* Gray-600 */ }
+        ul, ol { margin-bottom: 1rem; margin-left: 1.5rem; color: #4b5563; /* Gray-600 */ }
+        li { margin-bottom: 0.5rem; }
+        strong { color: #1f2937; /* Gray-800 */ }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-blue-700 text-center">Interactive Hyper-V Network Troubleshooting Guide</h1>
+            <p class="text-center text-gray-600 mt-1 text-sm sm:text-base">Your step-by-step assistant for resolving Hyper-V network connectivity issues on Windows PCs.</p>
+        </div>
+    </header>
+
+    <nav class="bg-gray-100 py-3 shadow-sm mb-8">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <ul class="flex flex-wrap justify-center space-x-1 sm:space-x-2">
+                <li><a href="#start-here" class="nav-link active">Start Here</a></li>
+                <li><a href="#understanding" class="nav-link">Understanding Hyper-V Networking</a></li>
+                <li><a href="#diagnosis" class="nav-link">Diagnosing the Problem</a></li>
+                <li><a href="#solutions" class="nav-link">Solutions Guide</a></li>
+                <li><a href="#best-practices" class="nav-link">Best Practices</a></li>
+                <li><a href="#final-thoughts" class="nav-link">Final Thoughts</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    
+<lottie-player src="https://cdn.lottielab.com/l/DNRcwZ5NC9hHc5.json" loop autoplay></lottie-player>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        
+        <section id="start-here" class="content-section active">
+            <h2>Welcome! Navigating This Guide</h2>
+            <p>This interactive guide is designed to help you troubleshoot and resolve network connectivity problems on your Windows PC that may have arisen after configuring or using Hyper-V. Losing network access can be frustrating, and this tool aims to provide clear, step-by-step instructions to get you back online.</p>
+            <p>The guide is structured to walk you through understanding the problem, diagnosing its cause, applying solutions, and finally, learning best practices to prevent future issues. Use the navigation bar above to move between sections. The "Solutions Guide" is particularly interactive, allowing you to focus on specific troubleshooting procedures.</p>
+             <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 mt-6 rounded-md" role="alert">
+                <p class="font-bold">How to Use This Guide:</p>
+                <ul class="list-disc list-inside mt-2">
+                    <li>Start with "Understanding Hyper-V Networking" if you're new to Hyper-V or want a refresher.</li>
+                    <li>Proceed to "Diagnosing the Problem" to identify symptoms and run initial checks.</li>
+                    <li>The "Solutions Guide" offers specific fixes. Navigate to the category that seems most relevant to your issue.</li>
+                    <li>"Best Practices" provides tips for stable Hyper-V networking in the long run.</li>
+                    <li>Remember to follow steps carefully, especially those involving command-line tools or system changes.</li>
+                </ul>
+            </div>
+            <h3 class="mt-6">Executive Summary of the Problem</h3>
+            <p>This application addresses a critical issue frequently encountered by Windows PC users who interact with Hyper-V: the loss of host network connectivity after modifying Hyper-V settings and a subsequent system restart. This often stems from conflicts or misconfigurations introduced by Hyper-V's virtual networking components that directly impact the host operating system's ability to communicate over the network. The aim of this guide is to provide a structured, step-by-step approach to diagnose and resolve such network card malfunctions. It covers essential diagnostic techniques, common solutions ranging from virtual switch reconfiguration to driver management, and advanced troubleshooting steps, ultimately guiding the user towards restoring full network functionality to their Windows PC.</p>
+        </section>
+
+        <section id="understanding" class="content-section">
+            <h2>Understanding Hyper-V Virtual Networking Fundamentals</h2>
+            <p>This section lays the groundwork by explaining how Hyper-V's networking components operate and, crucially, how they interact with and take control of the host's physical network adapters. Comprehending this architecture is key to understanding why network connectivity issues arise after Hyper-V modifications.</p>
+
+            <h3>The Role of the Hyper-V Virtual Switch</h3>
+            <p>The Hyper-V Virtual Switch, also known as the Hyper-V Extensible Switch, functions as a software-defined Ethernet switch residing within the Hyper-V host's memory. Its primary function is to enable communication between virtual machines (VMs), between VMs and the host, and between VMs and the external physical network. It effectively mimics the functionality of a physical network switch.</p>
+            <p>Virtual Network Interface Cards (vNICs) within virtual machines "plug into" this virtual switch. The virtual switch, in turn, is bound to one or more physical network adapters on the Hyper-V Host, serving as uplinks to the broader physical network. This binding is facilitated by NDIS filter drivers, which are extensions that integrate into the virtual switch driver stack.</p>
+            <p>Hyper-V offers three distinct types of virtual switches, each designed for specific networking scenarios:</p>
+            <ul class="list-disc ml-5 space-y-2">
+                <li><strong>External Virtual Switch:</strong> This is the most commonly used and default switch type. It connects virtual machines directly to the physical network, enabling them to access the internet and other physical devices.</li>
+                <li><strong>Internal Virtual Switch:</strong> This type facilitates communication exclusively between virtual machines connected to the same switch and between these VMs and the Hyper-V host operating system. It does not provide direct connectivity to the external physical network.</li>
+                <li><strong>Private Virtual Switch:</strong> Offering the highest level of isolation, a private virtual switch allows communication only among virtual machines connected to that specific switch. Neither the Hyper-V host nor any external physical network devices can communicate with VMs on a private switch.</li>
+            </ul>
+
+            <div class="overflow-x-auto mt-6 shadow-md rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="table-header">
+                        <tr>
+                            <th class="table-cell text-left">Switch Type</th>
+                            <th class="table-cell text-left">VM to VM Communication</th>
+                            <th class="table-cell text-left">VM to Host Communication</th>
+                            <th class="table-cell text-left">VM to Physical Network/Internet</th>
+                            <th class="table-cell text-left">Primary Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="table-cell">External</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">Internet access for VMs, general network integration</td>
+                        </tr>
+                        <tr>
+                            <td class="table-cell">Internal</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">No</td>
+                            <td class="table-cell">Isolated lab environment, host-VM communication, network security appliance integration</td>
+                        </tr>
+                        <tr>
+                            <td class="table-cell">Private</td>
+                            <td class="table-cell">Yes</td>
+                            <td class="table-cell">No</td>
+                            <td class="table-cell">No</td>
+                            <td class="table-cell">Complete VM isolation, VM-to-VM communication only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4 text-sm text-gray-500">This table provides a clear reference for the distinct functions and communication capabilities of each virtual switch type. This foundational understanding is crucial for diagnosing network problems.</p>
+
+            <h3>How External Switches Bind to Physical Adapters</h3>
+            <p>When an External Virtual Switch is created using Hyper-V Manager, it requires explicit configuration to select and bind to a specific physical network adapter installed on the Hyper-V host. A critical, yet often misunderstood, aspect of this binding is that the Hyper-V virtual switch takes exclusive control of the physical adapter it is connected to. The physical adapter is not "shared" in the conventional sense; rather, it undergoes a fundamental architectural transformation. Consequently, direct configuration of TCP/IP information (like IP addresses or DNS servers) on the physical adapter itself is no longer possible once the virtual switch has bound to it.</p>
+            <p>For the host operating system to maintain network access through this physical adapter, Hyper-V creates a virtual network adapter specifically for the management operating system. This virtual adapter, often named "vEthernet (External Switch)" in Windows Network Connections, is then connected to the same virtual switch that the VMs use. The host's original IP configuration (e.g., DHCP or static IP) is migrated to this newly created `vEthernet` adapter. Troubleshooting efforts must shift focus from the physical adapter's direct properties to the Hyper-V virtual switch configuration and the management OS's virtual adapter.</p>
+
+            <h3>Impact on the Host's Physical Network Adapter</h3>
+            <p>The fundamental implication of this architecture is that once a physical adapter is dedicated to an External Hyper-V Virtual Switch, all network traffic for both the host (if configured to "share") and the VMs flows through this virtual switch via their respective virtual network adapters. If the underlying physical adapter encounters an issue (e.g., driver corruption, hardware malfunction, or a misconfiguration within the virtual switch layer itself), the host will experience a complete loss of network connectivity.</p>
+            <p>The Hyper-V network stack is deeply integrated and highly sensitive to changes. Modifications, even seemingly minor ones, can have profound impacts on the host's network connectivity. It is also important to note the "Default Switch" as a distinct entity, often found on Windows client PCs, that provides NAT-based internet access. This type of switch behaves differently from a manually created External Switch.</p>
+        </section>
+
+        <section id="diagnosis" class="content-section">
+            <h2>Initial Diagnosis: Pinpointing the Root Cause</h2>
+            <p>Before attempting any solutions, a systematic diagnosis is essential to understand the specific nature of the network problem. This section guides you through initial checks to identify the root cause, preventing unnecessary or potentially harmful troubleshooting steps.</p>
+
+            <h3>Common Symptoms of Hyper-V Network Issues</h3>
+            <p>The most immediate symptom is the host PC having no internet access or local network connectivity. The physical network adapter in Windows Network Connections might display misleading statuses such as "Network cable unplugged," "No connectivity," or "Limited/No Internet access," even when the cable is physically connected and the router is operational. Further indicators include:</p>
+            <ul class="list-disc ml-5 space-y-1">
+                <li>Inability to ping local network devices (like the router or other PCs).</li>
+                <li>Inability to ping external IP addresses (e.g., 8.8.8.8).</li>
+                <li>Hyper-V Manager displaying errors related to virtual switch creation or binding.</li>
+                <li>In the properties of the physical network adapter, only "Microsoft LLDP Protocol Driver" and "Hyper-V Extensible Virtual Switch" might be checked, with other essential protocols (like TCP/IP) missing.</li>
+            </ul>
+            <p>The apparent status of the physical network adapter in Windows can be misleading. When Hyper-V takes control, a "no connectivity" status often indicates a malfunction within the virtualized layer (the Hyper-V virtual switch or the `vEthernet` adapter) rather than a direct hardware fault of the physical NIC.</p>
+
+            <h3>Essential Command-Line Network Checks</h3>
+            <p>These tools are invaluable for quickly assessing the network state. Always run Command Prompt or PowerShell as an administrator.</p>
+            
+            <div class="accordion-container mt-4 space-y-3">
+                <div class="accordion-item">
+                    <div class="accordion-header p-4 rounded-t-md flex justify-between items-center">
+                        <h4 class="text-lg font-medium m-0"><code>ipconfig /all</code></h4>
+                        <span class="transform transition-transform duration-200">▼</span>
+                    </div>
+                    <div class="accordion-content p-4 rounded-b-md">
+                        <p>Displays detailed IP configuration for all network adapters, including the crucial `vEthernet` adapter created for the host. Examine IP address, subnet mask, default gateway, and DNS servers.</p>
+                        <div class="code-block mt-2">
+                            <button class="copy-btn">Copy</button>
+                            <pre>ipconfig /all</pre>
+                        </div>
+                        <p class="mt-2">To refresh IP addresses:</p>
+                        <div class="code-block mt-1">
+                            <button class="copy-btn">Copy</button>
+                            <pre>ipconfig /release
+ipconfig /renew</pre>
+                        </div>
+                         <p class="mt-2">To clear DNS cache:</p>
+                        <div class="code-block mt-1">
+                            <button class="copy-btn">Copy</button>
+                            <pre>ipconfig /flushdns</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header p-4 rounded-t-md flex justify-between items-center">
+                        <h4 class="text-lg font-medium m-0"><code>ping &lt;IP_address&gt;</code></h4>
+                        <span class="transform transition-transform duration-200">▼</span>
+                    </div>
+                    <div class="accordion-content p-4 rounded-b-md">
+                        <p>Tests basic network connectivity. First, ping your router's IP address, then a known local device, then an external IP (e.g., 8.8.8.8).</p>
+                        <div class="code-block mt-2">
+                            <button class="copy-btn">Copy</button>
+                            <pre>ping YOUR_ROUTER_IP_ADDRESS
+ping 8.8.8.8</pre>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="accordion-item">
+                    <div class="accordion-header p-4 rounded-t-md flex justify-between items-center">
+                        <h4 class="text-lg font-medium m-0"><code>netsh</code></h4>
+                        <span class="transform transition-transform duration-200">▼</span>
+                    </div>
+                    <div class="accordion-content p-4 rounded-b-md">
+                        <p>A powerful utility for configuring and diagnosing network settings. Can be used to inspect VM switch or adapter issues. Example usage varies greatly.</p>
+                         <p class="mt-2 text-sm text-gray-500">Further research specific `netsh` commands relevant to your suspected issue (e.g., `netsh interface show interface`).</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header p-4 rounded-t-md flex justify-between items-center">
+                        <h4 class="text-lg font-medium m-0"><code>tracert &lt;destination&gt;</code></h4>
+                        <span class="transform transition-transform duration-200">▼</span>
+                    </div>
+                    <div class="accordion-content p-4 rounded-b-md">
+                        <p>Traces the route packets take to a destination. Useful for identifying routing issues.</p>
+                        <div class="code-block mt-2">
+                            <button class="copy-btn">Copy</button>
+                            <pre>tracert google.com</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header p-4 rounded-t-md flex justify-between items-center">
+                        <h4 class="text-lg font-medium m-0"><code>nslookup &lt;domain&gt;</code></h4>
+                        <span class="transform transition-transform duration-200">▼</span>
+                    </div>
+                    <div class="accordion-content p-4 rounded-b-md">
+                        <p>Diagnoses DNS resolution issues. If you can ping an IP but not a domain name, DNS is likely the problem.</p>
+                        <div class="code-block mt-2">
+                            <button class="copy-btn">Copy</button>
+                            <pre>nslookup google.com</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-4 text-sm text-gray-500">This methodical approach, starting with basic connectivity and moving to more specific Hyper-V and software checks, is crucial for efficient problem isolation.</p>
+
+
+            <h3>Inspecting Hyper-V Virtual Switch Configuration in Hyper-V Manager</h3>
+            <p>Open <strong>Hyper-V Manager</strong> (from Start Menu). In the Actions pane, select <strong>"Virtual Switch Manager."</strong> Carefully review:</p>
+            <ul class="list-disc ml-5 space-y-1">
+                <li>Status and configuration of all virtual switches (External, Default Switch).</li>
+                <li>For External Virtual Switches: Verify which <em>physical network adapter</em> it's bound to.</li>
+                <li>Ensure <strong>"Allow management operating system to share this network adapter"</strong> is checked if the host PC needs internet access via this switch.</li>
+                <li>Check if <strong>"Enable virtual LAN identification"</strong> is unchecked if your network doesn't use VLANs.</li>
+                <li>Inspect the `vEthernet` adapter (for the host OS) in Windows Network Connections for correct IP configuration (DHCP or static).</li>
+            </ul>
+            <p>Remember, the "Default Switch" uses NAT and has specific troubleshooting distinct from manually configured External Switches.</p>
+
+            <h3>Identifying Potential Software Conflicts</h3>
+            <p>Various software can conflict with Hyper-V networking:</p>
+            <ul class="list-disc ml-5 space-y-1">
+                <li><strong>VPN Clients:</strong> Can conflict with virtual adapters. Temporarily disable VPN software.</li>
+                <li><strong>Other Virtualization Platforms (VirtualBox, VMware):</strong> Ensure only one platform's networking components are active.</li>
+                <li><strong>Firewall/Antivirus Software:</strong> Aggressive settings might block Hyper-V traffic. Temporarily disable for testing (with caution).</li>
+            </ul>
+        </section>
+
+        <section id="solutions" class="content-section">
+            <h2>Step-by-Step Solutions to Restore Connectivity</h2>
+            <p>This section provides actionable solutions, from Hyper-V specific fixes to broader Windows network resets and advanced methods. Please ensure you understand the implications of each step, especially those marked with warnings.</p>
+            
+            <div class="my-6">
+                <p class="mb-3 text-lg font-semibold text-gray-700">Select a solution category:</p>
+                <div class="flex flex-wrap gap-3">
+                    <button class="solution-category-btn px-4 py-2 rounded-md font-medium" data-solution-category="A">A. Virtual Switches</button>
+                    <button class="solution-category-btn px-4 py-2 rounded-md font-medium" data-solution-category="B">B. Driver Issues</button>
+                    <button class="solution-category-btn px-4 py-2 rounded-md font-medium" data-solution-category="C">C. Network Resets</button>
+                    <button class="solution-category-btn px-4 py-2 rounded-md font-medium" data-solution-category="D">D. Advanced</button>
+                </div>
+            </div>
+
+            <div id="solution-content-area" class="mt-6">
+                <p class="text-gray-500 italic">Select a category above to view detailed solutions.</p>
+            </div>
+        </section>
+
+        <section id="best-practices" class="content-section">
+            <h2>Best Practices for Stable Hyper-V Networking</h2>
+            <p>Adopting best practices is crucial for preventing future network connectivity issues when working with Hyper-V. Proactive management significantly reduces the likelihood of encountering problems.</p>
+
+            <h3>Careful Planning of Virtual Switch Configurations</h3>
+            <ul class="list-disc ml-5 space-y-2">
+                <li><strong>Understand Switch Types:</strong> Clearly define the purpose of each virtual switch (External, Internal, Private) before creation.</li>
+                <li><strong>Physical Adapter Selection:</strong> When creating an External switch, meticulously choose the correct physical network adapter. If your PC has only one, the host's traffic will route through the `vEthernet` adapter.</li>
+                <li><strong>"Allow Management OS to Share":</strong> Enable this option only if the host PC genuinely needs network access through that specific virtual switch.</li>
+                <li><strong>Avoid Unnecessary Switches:</strong> Keep the virtual switch configuration as simple as possible to avoid complexity and potential conflicts.</li>
+            </ul>
+
+            <h3>Proactive Driver Management</h3>
+            <ul class="list-disc ml-5 space-y-2">
+                <li><strong>Official Drivers:</strong> Always obtain physical network adapter drivers from the manufacturer's official website (e.g., Intel, Realtek) or your PC/motherboard manufacturer.</li>
+                <li><strong>Regular Updates (with caution):</strong> Keep drivers updated, but check release notes for Hyper-V compatibility. New drivers can sometimes introduce issues.</li>
+                <li><strong>Rollback Preparedness:</strong> Know how to roll back a driver. If an update causes instability, reverting to a stable version is effective.</li>
+            </ul>
+
+            <h3>Regular System and Configuration Backups</h3>
+            <ul class="list-disc ml-5 space-y-2">
+                <li><strong>System Restore Points:</strong> Create a System Restore Point *before* making significant Hyper-V changes, installing new drivers, or major Windows updates.</li>
+                <li><strong>VM and Host Configuration Backups:</strong> Regularly back up virtual machine files (VHD/VHDX) and export VM configurations. Consider full system image backups for the host.</li>
+                <li><strong>Document Configurations:</strong> Maintain a record of Hyper-V virtual switch names, types, and their bound physical adapters.</li>
+            </ul>
+            <p class="mt-4">Hyper-V is a Type 1 hypervisor that fundamentally alters the OS's interaction with hardware. Approach its network configuration with understanding and respect for its impact to maintain system stability.</p>
+        </section>
+
+        <section id="final-thoughts" class="content-section">
+            <h2>Final Thoughts & Conclusion</h2>
+            <p>Hyper-V network issues, while frustrating, are almost always resolvable with a systematic and patient approach. The key lies in understanding how Hyper-V integrates with and manages your PC's network stack.</p>
+            <p>To address such issues effectively:</p>
+            <ol class="list-decimal ml-5 space-y-2">
+                <li>Begin with thorough <strong>diagnosis</strong> using command-line tools and Hyper-V Manager.</li>
+                <li>Progress through <strong>reconfiguring or recreating virtual switches</strong>.</li>
+                <li>Address potential <strong>network adapter driver issues</strong>.</li>
+                <li>Consider <strong>resetting Windows network components</strong>.</li>
+                <li>Only as a last resort, use <strong>advanced methods</strong> like disabling/re-enabling Hyper-V, registry edits (with extreme caution and backups), or a system restore.</li>
+            </ol>
+            <p class="mt-4">To ensure stability, always prioritize careful planning of virtual switch configurations, maintain proactive driver management, and implement regular system and configuration backups. These best practices are your strongest defense against future network disruptions.</p>
+            <p>If, after diligently following these steps, network connectivity issues persist, consider consulting Microsoft's official Hyper-V documentation, community forums, or seeking assistance from a qualified IT professional.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-6 mt-12">
+        <p class="text-sm">&copy; <span id="currentYear"></span> Hyper-V Network Troubleshooting Guide. Information based on provided report.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const solutionCategoryBtns = document.querySelectorAll('.solution-category-btn');
+            const solutionContentArea = document.getElementById('solution-content-area');
+
+            function setActiveSection(hash) {
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                contentSections.forEach(section => {
+                    if ('#' + section.id === hash) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+                window.scrollTo(0, 0); // Scroll to top on section change
+            }
+
+            // Initial setup based on hash or default
+            const currentHash = window.location.hash || '#start-here';
+            setActiveSection(currentHash);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetHash = this.getAttribute('href');
+                    setActiveSection(targetHash);
+                    window.location.hash = targetHash; // Update URL hash
+                });
+            });
+            
+            // Accordion functionality
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('span');
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.display = 'block';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            // Copy to clipboard functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const codeBlock = this.nextElementSibling; // Assuming pre is the next sibling
+                    const textToCopy = codeBlock.innerText;
+                    
+                    // Use a temporary textarea element to copy
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textToCopy;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.innerText = 'Copied!';
+                        setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        button.innerText = 'Failed';
+                         setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+                    }
+                    document.body.removeChild(textArea);
+                });
+            });
+
+            // Solution categories
+            const solutionsData = {
+                "A": {
+                    title: "A. Reconfiguring or Recreating Virtual Switches",
+                    intro: "This category addresses issues stemming from misconfiguration or corruption of the virtual switch itself. These are often the most common causes of Hyper-V related network problems.",
+                    solutions: [
+                        {
+                            id: "reset-default-switch",
+                            title: "Resetting the Default Switch",
+                            content: `
+                                <p>The "Default Switch" is auto-provisioned by Hyper-V on Windows client OS and provides NAT-based internet access. If corrupted, resetting it is often the quickest fix.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li><strong>Open Hyper-V Manager.</strong></li>
+                                    <li><strong>Remove the Default Switch:</strong> In "Virtual Switch Manager" (Actions pane), right-click "Default switch," select "Remove," confirm.</li>
+                                    <li><strong>Create a New Default Switch:</strong> Right-click host name in Hyper-V Manager -> "Virtual Switch Manager" -> "New virtual network switch" -> "Default switch" -> "Create virtual switch."</li>
+                                    <li><strong>Configure VM Network Settings:</strong> Ensure VMs connect to this "Default Switch" and obtain IP/DNS automatically (DHCP).</li>
+                                </ol>
+                                <p class="mt-2 text-sm"><em>Alternative: Some find success by right-clicking Default Switch -> Properties -> "Restore Defaults."</em></p>
+                            `
+                        },
+                        {
+                            id: "recreate-external-switch",
+                            title: "Removing and Recreating Custom External Switches",
+                            content: `
+                                <p>If a manually created External Virtual Switch is causing problems, a clean recreation can resolve binding or configuration issues.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li><strong>Crucial: Shut Down VMs:</strong> Shut down all VMs connected to the problematic switch before removal.</li>
+                                    <li><strong>Open Hyper-V Manager.</strong></li>
+                                    <li><strong>Remove Problematic Switch:</strong> In "Virtual Switch Manager," select the External Switch, click "Remove," confirm.</li>
+                                    <li><strong>Create New External Switch:</strong> Click "New virtual network switch" -> "External" -> carefully choose the <em>correct physical network adapter</em>.</li>
+                                    <li><strong>Configure Host Sharing:</strong> Check <strong>"Allow management operating system to share this network adapter."</strong> This is vital for host PC access.</li>
+                                    <li><strong>Re-connect VMs:</strong> Update VM settings to connect their network adapters to this new switch.</li>
+                                    <li><strong>Verify Host Adapter:</strong> Check the ` + "<code>vEthernet</code>" + ` adapter (for host OS) in Network Connections for correct IP configuration.</li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "powershell-switch-mgmt",
+                            title: "PowerShell Commands for Virtual Switch Management",
+                            content: `
+                                <p>PowerShell offers a robust alternative if Hyper-V Manager GUI is unresponsive or failing. Run PowerShell as Administrator.</p>
+                                <strong>To Remove a Virtual Switch (Forcefully):</strong>
+                                <div class="code-block mt-1 mb-3">
+                                    <button class="copy-btn">Copy</button>
+                                    <pre>Get-VMSwitch -Name "YourSwitchName" | Remove-VMSwitch -Force</pre>
+                                </div>
+                                <p class="text-xs italic mb-2">Replace "YourSwitchName" with the exact name of your problematic switch.</p>
+                                <strong>To Create an External Virtual Switch:</strong>
+                                <div class="code-block mt-1 mb-3">
+                                    <button class="copy-btn">Copy</button>
+                                    <pre>New-VMSwitch -Name "External VM Switch" -AllowManagementOS $True -NetAdapterName "Ethernet"</pre>
+                                </div>
+                                <p class="text-xs italic mb-2">Replace "Ethernet" with your physical adapter's name (from Network Connections).</p>
+                                <strong>To Disable/Enable Network Adapters (Host):</strong>
+                                <div class="code-block mt-1">
+                                    <button class="copy-btn">Copy</button>
+                                    <pre>Disable-NetAdapter -Name "Ethernet"
+Start-Sleep -Seconds 2
+Enable-NetAdapter -Name "Ethernet"
+Start-Sleep -Seconds 2
+Invoke-Expression "netsh interface set interface 'vEthernet (External Switch)' admin=enable"</pre>
+                                </div>
+                                <p class="text-xs italic mt-1">Replace "Ethernet" and 'vEthernet (External Switch)' with your specific adapter names.</p>
+                            `
+                        }
+                    ]
+                },
+                "B": {
+                    title: "B. Addressing Network Adapter Driver Issues",
+                    intro: "Corrupted, outdated, or incompatible network adapter drivers for your physical NIC can prevent Hyper-V from correctly binding, leading to loss of host connectivity. Sometimes, the issue is a conflict within Hyper-V's virtual driver components rather than a physical driver fault.",
+                    solutions: [
+                        {
+                            id: "uninstall-reinstall-drivers",
+                            title: "Uninstalling and Reinstalling Network Adapter Drivers",
+                            content: `
+                                <p>This forces Windows to re-detect hardware and install a fresh driver.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open <strong>Device Manager</strong> (Win + X -> Device Manager).</li>
+                                    <li>Expand "Network adapters."</li>
+                                    <li>Identify your <em>physical</em> network adapter (e.g., Intel Ethernet, Realtek PCIe).</li>
+                                    <li>Right-click adapter -> <strong>"Uninstall device."</strong></li>
+                                    <li>If prompted, check <strong>"Delete the driver software for this device."</strong></li>
+                                    <li><strong>Restart your PC.</strong> Windows should auto-reinstall a driver.</li>
+                                    <li>After reboot, check connectivity. May need to re-enable Hyper-V or recreate virtual switches.</li>
+                                </ol>
+                                <p class="mt-2 text-sm"><em>Tip: Check for hidden/disabled devices in Device Manager first.</em></p>
+                            `
+                        },
+                        {
+                            id: "rollback-drivers",
+                            title: "Rolling Back Drivers to a Previous Version",
+                            content: `
+                                <p>If issues began after a recent driver update, rolling back can help.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open <strong>Device Manager.</strong></li>
+                                    <li>Expand "Network adapters."</li>
+                                    <li>Right-click physical adapter -> <strong>"Properties."</strong></li>
+                                    <li>Go to <strong>"Driver"</strong> tab.</li>
+                                    <li>Click <strong>"Roll Back Driver."</strong> (If grayed out, no previous driver is stored).</li>
+                                    <li>Select reason, confirm.</li>
+                                    <li><strong>Restart PC.</strong></li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "manual-install-drivers",
+                            title: "Manually Installing Drivers",
+                            content: `
+                                <p>If Windows fails to auto-install or you need a specific version.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li><strong>Download Drivers:</strong> Get latest/stable driver from manufacturer's official site (Intel, Realtek, PC/motherboard maker). Save to USB if no internet.</li>
+                                    <li>Open <strong>Device Manager.</strong></li>
+                                    <li>Right-click physical adapter -> <strong>"Update driver."</strong></li>
+                                    <li>Choose <strong>"Browse my computer for driver software."</strong></li>
+                                    <li>Click <strong>"Browse,"</strong> navigate to downloaded driver folder, click "Next."</li>
+                                    <li>Follow prompts.</li>
+                                    <li><strong>Reboot system.</strong></li>
+                                </ol>
+                            `
+                        }
+                    ]
+                },
+                "C": {
+                    title: "C. Resetting Windows Network Components",
+                    intro: "These steps address broader issues within the Windows network stack that might have been caused or aggravated by Hyper-V configurations.",
+                    solutions: [
+                        {
+                            id: "netcfg-d",
+                            title: "Using the `netcfg -d` Command (with strong caution)",
+                            content: `
+                                <div class="warning-box mb-4">
+                                    <p class="font-bold">WARNING: DATA LOSS IMMINENT!</p>
+                                    <p>This command completely uninstalls and re-initializes ALL network adapters, drivers, and settings (Wi-Fi profiles, Ethernet configs, VPNs, static IPs). All network settings must be reconfigured. Proceed ONLY if other methods failed and you are prepared.</p>
+                                </div>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open an <strong>elevated Command Prompt or PowerShell</strong> (Run as Administrator).</li>
+                                    <li>Type ` + "<code>netcfg -d</code>" + ` and press Enter.</li>
+                                    <li>After processing, a prompt to restart will appear. Press Enter to reboot.</li>
+                                    <li>Upon restart, Windows will try to reinstall generic drivers. Manually reconfigure physical adapter settings and then recreate Hyper-V virtual switches.</li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "windows-network-reset",
+                            title: "Windows Network Reset via Settings",
+                            content: `
+                                <p>Windows 10/11 include a built-in "Network reset" that automates reinstallation of adapters and resets components to default. Less drastic than ` + "<code>netcfg -d</code>" + `.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Go to <strong>Start > Settings > Network & Internet</strong>.</li>
+                                    <li><strong>Windows 10:</strong> "Status" -> scroll down -> "Network reset."</li>
+                                    <li><strong>Windows 11:</strong> "Advanced network settings" -> "Network reset."</li>
+                                    <li>On "Network reset" screen, click <strong>"Reset now,"</strong> confirm "Yes."</li>
+                                    <li>PC will auto-restart.</li>
+                                    <li>After restart, reconfigure Wi-Fi and re-establish Hyper-V virtual switches.</li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "winsock-reset",
+                            title: "Resetting Winsock Data",
+                            content: `
+                                <p>Winsock (Windows Sockets) handles network I/O. Corruption can cause issues. Resetting restores defaults.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open an <strong>elevated Command Prompt</strong> (Run as Administrator).</li>
+                                    <li>Type ` + "<code>netsh winsock reset</code>" + ` and press Enter.</li>
+                                    <li>Confirmation message will appear.</li>
+                                    <li><strong>Restart computer.</strong></li>
+                                </ol>
+                            `
+                        }
+                    ]
+                },
+                "D": {
+                    title: "D. Advanced Troubleshooting & Last Resorts",
+                    intro: "These are more impactful steps, considered if all previous solutions failed. They underscore Hyper-V's deep integration into Windows.",
+                    solutions: [
+                        {
+                            id: "disable-enable-hyperv",
+                            title: "Disabling and Re-enabling the Hyper-V Feature",
+                            content: `
+                                <p>Effectively uninstalls and reinstalls core Hyper-V components, resolving deeper corruption.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open <strong>PowerShell as Administrator</strong>.</li>
+                                    <li><strong>Disable Hyper-V:</strong>
+                                        <div class="code-block my-1">
+                                            <button class="copy-btn">Copy</button>
+                                            <pre>Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V</pre>
+                                        </div>
+                                    </li>
+                                    <li>Allow completion, <strong>reboot PC</strong> when prompted.</li>
+                                    <li>After reboot, open <strong>PowerShell as Administrator</strong> again.</li>
+                                    <li><strong>Re-enable Hyper-V:</strong>
+                                        <div class="code-block my-1">
+                                            <button class="copy-btn">Copy</button>
+                                            <pre>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All</pre>
+                                        </div>
+                                    </li>
+                                    <li>Allow completion, <strong>reboot PC</strong> again.</li>
+                                    <li>Recreate virtual switches and re-connect VMs.</li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "registry-edits",
+                            title: "Registry Edits (with explicit warnings)",
+                            content: `
+                                <div class="warning-box mb-4">
+                                    <p class="font-bold">EXTREME CAUTION: BACK UP YOUR REGISTRY FIRST!</p>
+                                    <p>Incorrect registry edits can render the system unbootable. Create a system restore point or export the entire registry before proceeding. This is a highly advanced step.</p>
+                                </div>
+                                <p>In rare cases, leftover/corrupted registry entries for virtual switches can prevent function.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Open <strong>Registry Editor</strong> (Win + R, type ` + "<code>regedit</code>" + `, Enter).</li>
+                                    <li>Navigate to: ` + "<code>HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\VMSMP\\Parameters\\SwitchList</code>" + `</li>
+                                    <li>Carefully identify and delete the subkey (alphanumeric string folder) for the problematic switch.</li>
+                                    <li>Additionally, check:
+                                        <ul class="list-disc ml-5">
+                                            <li>` + "<code>HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Network\\{...}</code>" + ` (look for Hyper-V related entries)</li>
+                                            <li>` + "<code>HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces</code>" + ` (look for virtual adapter entries)</li>
+                                        </ul>
+                                        for leftover/corrupted entries related to virtual adapters or switches. Delete with extreme caution.
+                                    </li>
+                                    <li><strong>Reboot computer</strong> after changes.</li>
+                                </ol>
+                            `
+                        },
+                        {
+                            id: "system-restore",
+                            title: "Performing a System Restore",
+                            content: `
+                                <p>If issue started recently after Hyper-V changes and a restore point *before* those changes exists.</p>
+                                <ol class="list-decimal ml-5 space-y-1">
+                                    <li>Search "Create a restore point" in Windows search, open System Properties.</li>
+                                    <li>Click <strong>"System Restore."</strong></li>
+                                    <li>Follow wizard to choose a restore point predating Hyper-V changes.</li>
+                                    <li>Confirm, proceed. PC will restart and revert.</li>
+                                    <li>After restore, re-evaluate Hyper-V config, potentially recreating switches.</li>
+                                </ol>
+                            `
+                        }
+                    ]
+                }
+            };
+            
+            function renderSolutionCategory(categoryKey) {
+                const category = solutionsData[categoryKey];
+                if (!category) {
+                    solutionContentArea.innerHTML = '<p class="text-red-500">Error: Solution category not found.</p>';
+                    return;
+                }
+
+                let html = `<h3 class="text-2xl font-semibold mb-3">${category.title}</h3>`;
+                html += `<p class="mb-6 text-gray-600">${category.intro}</p>`;
+                
+                html += '<div class="accordion-container space-y-4">';
+                category.solutions.forEach(sol => {
+                    html += `
+                        <div class="accordion-item border border-gray-200 rounded-lg shadow-sm">
+                            <div class="accordion-header p-4 rounded-t-lg flex justify-between items-center bg-gray-50 hover:bg-gray-100">
+                                <h4 class="text-xl font-medium m-0 text-blue-600">${sol.title}</h4>
+                                <span class="transform transition-transform duration-200 text-blue-600 text-xl">▼</span>
+                            </div>
+                            <div class="accordion-content p-6 rounded-b-lg bg-white">
+                                ${sol.content}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                solutionContentArea.innerHTML = html;
+
+                // Re-attach event listeners for new accordions and copy buttons
+                solutionContentArea.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('span');
+                        if (content.style.display === 'block') {
+                            content.style.display = 'none';
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            // Close other accordions in this category
+                            solutionContentArea.querySelectorAll('.accordion-content').forEach(ac => ac.style.display = 'none');
+                            solutionContentArea.querySelectorAll('.accordion-header span').forEach(ic => ic.style.transform = 'rotate(0deg)');
+                            
+                            content.style.display = 'block';
+                            icon.style.transform = 'rotate(180deg)';
+                        }
+                    });
+                });
+                 solutionContentArea.querySelectorAll('.copy-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const codeBlock = this.nextElementSibling;
+                        const textToCopy = codeBlock.innerText;
+                        const textArea = document.createElement('textarea');
+                        textArea.value = textToCopy;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            button.innerText = 'Copied!';
+                            setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+                        } catch (err) {
+                             console.error('Failed to copy text: ', err);
+                             button.innerText = 'Failed';
+                             setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+                        }
+                        document.body.removeChild(textArea);
+                    });
+                });
+            }
+
+
+            solutionCategoryBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    solutionCategoryBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const categoryKey = this.dataset.solutionCategory;
+                    renderSolutionCategory(categoryKey);
+                });
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
+</html>

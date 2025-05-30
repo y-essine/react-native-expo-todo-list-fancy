@@ -4,8 +4,15 @@ import { createOnboard1Path } from "./Onboard1Path";
 import { createOnboard2Path } from "./Onboard2Path";
 import { createSpiralPath } from "./SpiralPath";
 import { createWavePath } from "./WavePath";
+import { createWhateverLinePath } from "./WhateverLine";
 
-export type PathType = "wave" | "circle" | "onboard1" | "onboard2" | "spiral";
+export type PathType =
+  | "wave"
+  | "circle"
+  | "onboard1"
+  | "onboard2"
+  | "spiral"
+  | "whateverLine";
 
 export interface PathConfig {
   name: string;
@@ -44,6 +51,12 @@ export const pathRegistry: Record<PathType, PathConfig> = {
     createPath: createSpiralPath,
     duration: 2500,
     strokeWidth: 3,
+  },
+  whateverLine: {
+    name: "Whatever Line",
+    createPath: createWhateverLinePath,
+    duration: 3000,
+    strokeWidth: 13,
   },
 };
 

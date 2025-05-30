@@ -8,10 +8,12 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "postinstall": "npx setup-skia-web public && node path-fs-canvaskit-postinstall.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@georgedoescode/spline": "^1.0.1",
     "@gluestack-style/react": "^1.0.56",
     "@gluestack-ui/config": "^1.1.18",
     "@gluestack-ui/themed": "^1.1.26",
@@ -29,6 +31,7 @@
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
     "expo-image": "~2.1.7",
+    "expo-linear-gradient": "~14.1.4",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.0.6",
     "expo-splash-screen": "~0.30.8",
@@ -47,12 +50,13 @@
     "react-native-reanimated-carousel": "^4.0.2",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
+    "react-native-skottie": "^2.1.4",
     "react-native-squircle": "^1.1.0",
     "react-native-svg": "15.11.2",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "zustand": "^5.0.5",
-    "expo-linear-gradient": "~14.1.4"
+    "simplex-noise": "^4.0.3",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

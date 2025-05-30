@@ -42,7 +42,7 @@ const MainPage = () => {
   };
 
   return (
-    <SafeAreaView bg="$isabelline" flex={1}>
+    <SafeAreaView bg="#FFF0E2" flex={1}>
       <View flex={1} px="$8">
         <View p="$3" flexDirection="row" justifyContent="space-between">
           <View>
